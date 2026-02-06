@@ -85,14 +85,22 @@ src/main/java/com/movieapi/
 
 4. **Access the API**
    ```
-   The API will be available at: http://localhost:8080
+   Local: http://localhost:8080
+   Production: https://movie-api-production-3803.up.railway.app
    ```
 
 ## 🔌 API Endpoints
 
 ### Base URL
+
+**Local Development:**
 ```
-http://localhost:8080/api/movies
+http://localhost:8080
+```
+
+**Production (Railway):**
+```
+https://movie-api-production-3803.up.railway.app
 ```
 
 | Method | Endpoint | Description |
@@ -316,17 +324,17 @@ The API provides detailed error responses for various scenarios:
 
 ### Get all movies
 ```bash
-curl -X GET http://localhost:8080/api/movies
+curl -X GET https://movie-api-production-3803.up.railway.app/api/movies
 ```
 
 ### Get movie by ID
 ```bash
-curl -X GET http://localhost:8080/api/movies/1
+curl -X GET https://movie-api-production-3803.up.railway.app/api/movies/1
 ```
 
 ### Add new movie
 ```bash
-curl -X POST http://localhost:8080/api/movies \
+curl -X POST https://movie-api-production-3803.up.railway.app/api/movies \
   -H "Content-Type: application/json" \
   -d '{
     "title": "Interstellar",
@@ -339,7 +347,7 @@ curl -X POST http://localhost:8080/api/movies \
 
 ### Update movie
 ```bash
-curl -X PUT http://localhost:8080/api/movies/1 \
+curl -X POST https://movie-api-production-3803.up.railway.app/api/movies/1 \
   -H "Content-Type: application/json" \
   -d '{
     "title": "The Shawshank Redemption",
@@ -352,13 +360,13 @@ curl -X PUT http://localhost:8080/api/movies/1 \
 
 ### Delete movie
 ```bash
-curl -X DELETE http://localhost:8080/api/movies/1
+curl -X DELETE https://movie-api-production-3803.up.railway.app/api/movies/1
 ```
 
 ## 🧪 Testing with Postman
 
 1. Import the API endpoints into Postman
-2. Set the base URL to `http://localhost:8080`
+2. Set the base URL to `https://movie-api-production-3803.up.railway.app`
 3. Use the examples above for request bodies
 4. Check response status codes and messages
 
