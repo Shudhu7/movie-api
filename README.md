@@ -1,6 +1,6 @@
 # 🎬 Movie API - Spring Boot REST API
 
-A RESTful API for managing a movie collection built with Spring Boot. This API provides complete CRUD (Create, Read, Update, Delete) operations with robust error handling and success messaging.
+A RESTful API for managing a movie collection built with Spring Boot. This API provides complete CRUD (Create, Read, Update, Delete) operations with robust error handling, input validation, and consistent response formatting.
 
 ## 📋 Table of Contents
 
@@ -12,19 +12,24 @@ A RESTful API for managing a movie collection built with Spring Boot. This API p
 - [Request & Response Examples](#request--response-examples)
 - [Error Handling](#error-handling)
 - [Validation Rules](#validation-rules)
+- [CORS Configuration](#cors-configuration)
+- [Testing](#testing)
 - [Contributing](#contributing)
+- [License](#license)
 
 ## ✨ Features
 
 - ✅ Full CRUD operations for movies
 - ✅ In-memory data storage using ArrayList
 - ✅ Comprehensive error handling with custom exceptions
-- ✅ Success messages for all operations
+- ✅ Success messages for all mutation operations (POST, PUT, DELETE)
 - ✅ Input validation with detailed error responses
-- ✅ Auto-incrementing IDs
-- ✅ Pre-populated sample data
+- ✅ Auto-incrementing IDs using AtomicLong
+- ✅ Pre-populated sample data on startup
 - ✅ RESTful API design principles
-- ✅ Consistent response format
+- ✅ Consistent response format for errors and successes
+- ✅ CORS enabled for cross-origin requests
+- ✅ Global exception handling
 
 ## 🛠 Technologies Used
 
@@ -39,6 +44,9 @@ A RESTful API for managing a movie collection built with Spring Boot. This API p
 src/main/java/com/movieapi/
 │
 ├── MovieApiApplication.java          # Main application entry point
+│
+├── config/
+│   └── WebConfig.java                # CORS configuration
 │
 ├── controller/
 │   └── MovieController.java          # REST endpoints
@@ -83,11 +91,14 @@ src/main/java/com/movieapi/
    mvn spring-boot:run
    ```
 
+   You should see the message:
+   ```
+   Movie API Application started successfully!
+   ```
+
 4. **Access the API**
-   ```
-   Local: http://localhost:8080
-   Production: https://movie-api-production-3803.up.railway.app
-   ```
+   - Local: `http://localhost:8080`
+   - Production: `https://movie-api-production-3803.up.railway.app`
 
 ## 🔌 API Endpoints
 
@@ -103,13 +114,15 @@ http://localhost:8080
 https://movie-api-production-3803.up.railway.app
 ```
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET    | `/api/movies` | Get all movies |
-| GET    | `/api/movies/{id}` | Get movie by ID |
-| POST   | `/api/movies` | Add a new movie |
-| PUT    | `/api/movies/{id}` | Update a movie |
-| DELETE | `/api/movies/{id}` | Delete a movie |
+### Available Endpoints
+
+| Method | Endpoint | Description | Response Type |
+|--------|----------|-------------|---------------|
+| GET    | `/api/movies` | Get all movies | Array of Movie objects |
+| GET    | `/api/movies/{id}` | Get movie by ID | Single Movie object |
+| POST   | `/api/movies` | Add a new movie | SuccessResponse with Movie |
+| PUT    | `/api/movies/{id}` | Update a movie | SuccessResponse with Movie |
+| DELETE | `/api/movies/{id}` | Delete a movie | SuccessResponse (no data) |
 
 ## 📝 Request & Response Examples
 
@@ -120,13 +133,13 @@ https://movie-api-production-3803.up.railway.app
 GET /api/movies
 ```
 
-**Response:**
+**Response (200 OK):**
 ```json
 [
   {
     "id": 1,
     "title": "The Shawshank Redemption",
-    "description": "Two imprisoned men bond over a number of years...",
+    "description": "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
     "genre": "Drama",
     "releaseYear": 1994,
     "rating": 9.3
@@ -134,10 +147,18 @@ GET /api/movies
   {
     "id": 2,
     "title": "Inception",
-    "description": "A thief who steals corporate secrets...",
+    "description": "A thief who steals corporate secrets through the use of dream-sharing technology.",
     "genre": "Sci-Fi",
     "releaseYear": 2010,
     "rating": 8.8
+  },
+  {
+    "id": 3,
+    "title": "The Dark Knight",
+    "description": "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham.",
+    "genre": "Action",
+    "releaseYear": 2008,
+    "rating": 9.0
   }
 ]
 ```
@@ -149,12 +170,12 @@ GET /api/movies
 GET /api/movies/1
 ```
 
-**Response:**
+**Response (200 OK):**
 ```json
 {
   "id": 1,
   "title": "The Shawshank Redemption",
-  "description": "Two imprisoned men bond over a number of years...",
+  "description": "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
   "genre": "Drama",
   "releaseYear": 1994,
   "rating": 9.3
@@ -177,10 +198,10 @@ Content-Type: application/json
 }
 ```
 
-**Success Response:**
+**Response (201 CREATED):**
 ```json
 {
-  "timestamp": "2026-02-06T10:30:00",
+  "timestamp": "2026-02-07T10:30:00",
   "status": 201,
   "message": "Movie added successfully!",
   "details": "The movie 'The Matrix' has been added to the collection.",
@@ -211,10 +232,10 @@ Content-Type: application/json
 }
 ```
 
-**Success Response:**
+**Response (200 OK):**
 ```json
 {
-  "timestamp": "2026-02-06T10:35:00",
+  "timestamp": "2026-02-07T10:35:00",
   "status": 200,
   "message": "Movie updated successfully!",
   "details": "The movie 'The Matrix' has been updated.",
@@ -236,10 +257,10 @@ Content-Type: application/json
 DELETE /api/movies/4
 ```
 
-**Success Response:**
+**Response (200 OK):**
 ```json
 {
-  "timestamp": "2026-02-06T10:40:00",
+  "timestamp": "2026-02-07T10:40:00",
   "status": 200,
   "message": "Movie deleted successfully!",
   "details": "The movie 'The Matrix' has been removed from the collection.",
@@ -249,13 +270,19 @@ DELETE /api/movies/4
 
 ## ❌ Error Handling
 
-The API provides detailed error responses for various scenarios:
+The API uses a `GlobalExceptionHandler` to provide consistent, detailed error responses for various scenarios.
 
 ### 1. Movie Not Found (404)
 
+**Request:**
+```http
+GET /api/movies/999
+```
+
+**Response:**
 ```json
 {
-  "timestamp": "2026-02-06T10:45:00",
+  "timestamp": "2026-02-07T10:45:00",
   "status": 404,
   "error": "Not Found",
   "message": "Movie not found with id: 999",
@@ -266,9 +293,21 @@ The API provides detailed error responses for various scenarios:
 
 ### 2. Validation Error (400)
 
+**Request:**
+```http
+POST /api/movies
+Content-Type: application/json
+
+{
+  "title": "Test Movie",
+  "rating": 15
+}
+```
+
+**Response:**
 ```json
 {
-  "timestamp": "2026-02-06T10:50:00",
+  "timestamp": "2026-02-07T10:50:00",
   "status": 400,
   "error": "Validation Error",
   "message": "Rating must be between 0 and 10",
@@ -282,11 +321,53 @@ The API provides detailed error responses for various scenarios:
 }
 ```
 
-### 3. Invalid JSON Format (400)
+### 3. Empty Title Validation (400)
 
+**Request:**
+```http
+POST /api/movies
+Content-Type: application/json
+
+{
+  "title": "",
+  "genre": "Drama"
+}
+```
+
+**Response:**
 ```json
 {
-  "timestamp": "2026-02-06T10:55:00",
+  "timestamp": "2026-02-07T10:52:00",
+  "status": 400,
+  "error": "Validation Error",
+  "message": "Title is required and cannot be empty",
+  "path": "/api/movies",
+  "validationErrors": [
+    {
+      "field": "title",
+      "message": "Title is required and cannot be empty"
+    }
+  ]
+}
+```
+
+### 4. Invalid JSON Format (400)
+
+**Request:**
+```http
+POST /api/movies
+Content-Type: application/json
+
+{
+  "title": "Test Movie",
+  "rating": "invalid",
+}
+```
+
+**Response:**
+```json
+{
+  "timestamp": "2026-02-07T10:55:00",
   "status": 400,
   "error": "Malformed JSON",
   "message": "Invalid JSON format.",
@@ -295,11 +376,17 @@ The API provides detailed error responses for various scenarios:
 }
 ```
 
-### 4. Type Mismatch (400)
+### 5. Type Mismatch (400)
 
+**Request:**
+```http
+GET /api/movies/abc
+```
+
+**Response:**
 ```json
 {
-  "timestamp": "2026-02-06T11:00:00",
+  "timestamp": "2026-02-07T11:00:00",
   "status": 400,
   "error": "Type Mismatch",
   "message": "Invalid value 'abc' for parameter 'id'. Expected type: Long",
@@ -308,31 +395,73 @@ The API provides detailed error responses for various scenarios:
 }
 ```
 
+### 6. Server Error (500)
+
+Any unexpected exceptions are caught and returned with a generic error message:
+
+```json
+{
+  "timestamp": "2026-02-07T11:05:00",
+  "status": 500,
+  "error": "Server Error",
+  "message": "Something went wrong.",
+  "path": "/api/movies",
+  "validationErrors": []
+}
+```
+
 ## ✔️ Validation Rules
 
 ### Movie Object Validation
 
-| Field | Rules |
-|-------|-------|
-| **title** | Required, cannot be empty or whitespace |
-| **rating** | Optional, must be between 0 and 10 |
-| **releaseYear** | Optional, must be between 1888 and 2100 |
-| **description** | Optional |
-| **genre** | Optional |
+| Field | Type | Rules | Required |
+|-------|------|-------|----------|
+| **id** | Long | Auto-generated, not required in requests | No |
+| **title** | String | Cannot be null, empty, or whitespace only | Yes |
+| **description** | String | No validation | No |
+| **genre** | String | No validation | No |
+| **releaseYear** | Integer | Must be between 1888 and 2100 if provided | No |
+| **rating** | Double | Must be between 0.0 and 10.0 if provided | No |
 
-## 🧪 Testing with cURL
+### Validation Details
 
-### Get all movies
+- **Title Validation**: Enforced in `validateMovie()` method in `MovieService`
+- **Rating Validation**: Rating out of 10 (e.g., 8.5 means 8.5/10)
+- **Release Year Validation**: 1888 is the year of the first movie ever made
+- **ID Generation**: Uses `AtomicLong` for thread-safe auto-incrementing IDs
+
+## 🌐 CORS Configuration
+
+CORS is configured in `WebConfig.java` to allow cross-origin requests:
+
+```java
+.allowedOrigins("*")  // Allows all origins
+.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+.allowedHeaders("*")
+.allowCredentials(false)
+.maxAge(3600)
+```
+
+This enables the API to be accessed from:
+- Frontend applications on different domains
+- File protocol (file://)
+- Deployment platforms (Netlify, Vercel, etc.)
+
+## 🧪 Testing
+
+### Testing with cURL
+
+#### Get all movies
 ```bash
 curl -X GET https://movie-api-production-3803.up.railway.app/api/movies
 ```
 
-### Get movie by ID
+#### Get movie by ID
 ```bash
 curl -X GET https://movie-api-production-3803.up.railway.app/api/movies/1
 ```
 
-### Add new movie
+#### Add new movie
 ```bash
 curl -X POST https://movie-api-production-3803.up.railway.app/api/movies \
   -H "Content-Type: application/json" \
@@ -345,9 +474,9 @@ curl -X POST https://movie-api-production-3803.up.railway.app/api/movies \
   }'
 ```
 
-### Update movie
+#### Update movie
 ```bash
-curl -X POST https://movie-api-production-3803.up.railway.app/api/movies/1 \
+curl -X PUT https://movie-api-production-3803.up.railway.app/api/movies/1 \
   -H "Content-Type: application/json" \
   -d '{
     "title": "The Shawshank Redemption",
@@ -358,26 +487,49 @@ curl -X POST https://movie-api-production-3803.up.railway.app/api/movies/1 \
   }'
 ```
 
-### Delete movie
+#### Delete movie
 ```bash
 curl -X DELETE https://movie-api-production-3803.up.railway.app/api/movies/1
 ```
 
-## 🧪 Testing with Postman
+### Testing with Postman
 
-1. Import the API endpoints into Postman
-2. Set the base URL to `https://movie-api-production-3803.up.railway.app`
-3. Use the examples above for request bodies
-4. Check response status codes and messages
+1. **Import the API endpoints** into Postman
+2. **Set the base URL** to `https://movie-api-production-3803.up.railway.app`
+3. **Test each endpoint** using the examples provided above
+4. **Verify response status codes**:
+   - 200 OK for successful GET, PUT, DELETE
+   - 201 CREATED for successful POST
+   - 400 BAD REQUEST for validation errors
+   - 404 NOT FOUND for missing resources
+   - 500 INTERNAL SERVER ERROR for unexpected errors
 
-## 🎯 Sample Data
+### Testing with Browser
 
-The application comes pre-populated with these movies:
+Simply navigate to:
+```
+https://movie-api-production-3803.up.railway.app/api/movies
+```
 
-1. **The Shawshank Redemption** (1994) - Drama - 9.3/10
-2. **Inception** (2010) - Sci-Fi - 8.8/10
-3. **The Dark Knight** (2008) - Action - 9.0/10
+You'll see a JSON response with all movies.
 
+## 🎯 Pre-populated Sample Data
+
+The application starts with these three movies:
+
+| ID | Title | Genre | Year | Rating |
+|----|-------|-------|------|--------|
+| 1 | The Shawshank Redemption | Drama | 1994 | 9.3/10 |
+| 2 | Inception | Sci-Fi | 2010 | 8.8/10 |
+| 3 | The Dark Knight | Action | 2008 | 9.0/10 |
+
+## 🔄 Data Persistence
+
+**Note**: This API uses an **in-memory ArrayList** for data storage. This means:
+- Data is lost when the application restarts
+- All movies revert to the initial sample data on restart
+- Perfect for development, testing, and demonstration purposes
+- For production use, consider integrating with a database (MySQL, PostgreSQL, MongoDB, etc.)
 
 ## 🤝 Contributing
 
@@ -389,6 +541,13 @@ Contributions are welcome! Please follow these steps:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+### Contribution Guidelines
+
+- Follow existing code style and conventions
+- Add comments for complex logic
+- Update documentation for new features
+- Test your changes thoroughly
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
@@ -398,3 +557,13 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 **Shuddhodan Ingale**
 - GitHub: [@Shuddhodan Ingale](https://github.com/Shudhu7)
 - Email: mr.shudhuingle@gmail.com
+
+## 🙏 Acknowledgments
+
+- Spring Boot team for the excellent framework
+- Railway for easy deployment
+- Everyone who has contributed to improving this project
+
+---
+
+**Made with ❤️ by Shuddhodan Ingale**
