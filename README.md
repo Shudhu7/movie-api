@@ -98,7 +98,7 @@ src/main/java/com/movieapi/
 
 4. **Access the API**
    - Local: `http://localhost:8080`
-   - Production: `https://movie-api-production-3803.up.railway.app`
+   - Production: `https://movie-api-production-c15e.up.railway.app/api/movies`
 
 ## 🔌 API Endpoints
 
@@ -111,7 +111,7 @@ http://localhost:8080
 
 **Production (Railway):**
 ```
-https://movie-api-production-3803.up.railway.app
+https://movie-api-production-c15e.up.railway.app/api/movies
 ```
 
 ### Available Endpoints
@@ -453,17 +453,17 @@ This enables the API to be accessed from:
 
 #### Get all movies
 ```bash
-curl -X GET https://movie-api-production-3803.up.railway.app/api/movies
+curl -X GET https://movie-api-production-c15e.up.railway.app/api/movies
 ```
 
 #### Get movie by ID
 ```bash
-curl -X GET https://movie-api-production-3803.up.railway.app/api/movies/1
+curl -X GET https://movie-api-production-c15e.up.railway.app/api/movies1
 ```
 
 #### Add new movie
 ```bash
-curl -X POST https://movie-api-production-3803.up.railway.app/api/movies \
+curl -X POST https://movie-api-production-c15e.up.railway.app/api/movies \
   -H "Content-Type: application/json" \
   -d '{
     "title": "Interstellar",
@@ -476,7 +476,7 @@ curl -X POST https://movie-api-production-3803.up.railway.app/api/movies \
 
 #### Update movie
 ```bash
-curl -X PUT https://movie-api-production-3803.up.railway.app/api/movies/1 \
+curl -X PUT https://movie-api-production-c15e.up.railway.app/api/movies/1 \
   -H "Content-Type: application/json" \
   -d '{
     "title": "The Shawshank Redemption",
@@ -489,13 +489,13 @@ curl -X PUT https://movie-api-production-3803.up.railway.app/api/movies/1 \
 
 #### Delete movie
 ```bash
-curl -X DELETE https://movie-api-production-3803.up.railway.app/api/movies/1
+curl -X DELETE https://movie-api-production-c15e.up.railway.app/api/movies/1
 ```
 
 ### Testing with Postman
 
 1. **Import the API endpoints** into Postman
-2. **Set the base URL** to `https://movie-api-production-3803.up.railway.app`
+2. **Set the base URL** to `https://movie-api-production-c15e.up.railway.app`
 3. **Test each endpoint** using the examples provided above
 4. **Verify response status codes**:
    - 200 OK for successful GET, PUT, DELETE
@@ -508,7 +508,7 @@ curl -X DELETE https://movie-api-production-3803.up.railway.app/api/movies/1
 
 Simply navigate to:
 ```
-https://movie-api-production-3803.up.railway.app/api/movies
+https://movie-api-production-c15e.up.railway.app/api/movies
 ```
 
 You'll see a JSON response with all movies.
@@ -548,22 +548,9 @@ Contributions are welcome! Please follow these steps:
 - Update documentation for new features
 - Test your changes thoroughly
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## 👨‍💻 Author
 
 **Shuddhodan Ingale**
 - GitHub: [@Shuddhodan Ingale](https://github.com/Shudhu7)
 - Email: mr.shudhuingle@gmail.com
 
-## 🙏 Acknowledgments
-
-- Spring Boot team for the excellent framework
-- Railway for easy deployment
-- Everyone who has contributed to improving this project
-
----
-
-**Made with ❤️ by Shuddhodan Ingale**
